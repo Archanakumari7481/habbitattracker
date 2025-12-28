@@ -21,6 +21,9 @@ export function TodoList() {
   const [loading, setLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
+  // Get today's date in YYYY-MM-DD format for min date
+  const today = new Date().toISOString().split('T')[0];
+
   useEffect(() => {
     if (user) {
       loadTodos();
@@ -158,7 +161,9 @@ export function TodoList() {
                   type="date"
                   value={newTodoDueDate}
                   onChange={(e) => setNewTodoDueDate(e.target.value)}
+                  min={today}
                 />
+                <p className="text-xs text-muted-foreground">Only future dates are allowed</p>
               </div>
               <Button onClick={handleAddTodo} className="w-full">
                 Add Task

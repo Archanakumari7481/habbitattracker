@@ -7,8 +7,19 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Moon, Plus } from 'lucide-react';
-import { getSleepLogs, upsertSleepLog } from '@/db/api';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
+import { Moon, Plus, Trash2 } from 'lucide-react';
+import { getSleepLogs, upsertSleepLog, deleteSleepLog } from '@/db/api';
 import type { SleepLog } from '@/types';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
@@ -106,6 +117,24 @@ export function SleepTrackerSection() {
     setWakeTime('06:00');
     setQuality('3');
     setNotes('');
+  };
+
+  const handleDeleteSleepLog = async (logId: string) => {
+    try {
+      await deleteSleepLog(logId);
+      setSleepLogs(sleepLogs.filter(log => log.id !== logId));
+      toast({
+        title: 'Success',
+        description: 'Sleep log deleted successfully',
+      });
+    } catch (error) {
+      console.error('Failed to delete sleep log:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to delete sleep log',
+        variant: 'destructive',
+      });
+    }
   };
 
   const formatDuration = (minutes: number | null) => {
@@ -270,6 +299,27 @@ export function SleepTrackerSection() {
                     <div className="text-sm font-medium">Quality</div>
                     <div className="text-2xl font-bold">{log.quality}/5</div>
                   </div>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button variant="ghost" size="icon">
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Delete Sleep Log</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Are you sure you want to delete this sleep log? This action cannot be undone.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={() => handleDeleteSleepLog(log.id)}>
+                          Delete
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
                 </div>
               ))}
             </div>

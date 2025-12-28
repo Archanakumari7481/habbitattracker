@@ -258,6 +258,15 @@ export const upsertSleepLog = async (log: Omit<SleepLog, 'id' | 'created_at' | '
   return data;
 };
 
+export const deleteSleepLog = async (logId: string) => {
+  const { error } = await supabase
+    .from('sleep_logs')
+    .delete()
+    .eq('id', logId);
+  
+  if (error) throw error;
+};
+
 // Goal APIs
 export const getGoals = async (userId: string) => {
   const { data, error } = await supabase
