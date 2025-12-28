@@ -3,18 +3,23 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Plus, Trash2 } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Plus, Trash2, Calendar as CalendarIcon } from 'lucide-react';
 import { getTodos, createTodo, updateTodo, deleteTodo } from '@/db/api';
 import type { Todo } from '@/types';
 import { useToast } from '@/hooks/use-toast';
+import { format, isToday, isPast, isFuture, parseISO } from 'date-fns';
 
 export function TodoList() {
   const { user } = useAuth();
   const { toast } = useToast();
   const [todos, setTodos] = useState<Todo[]>([]);
   const [newTodoTitle, setNewTodoTitle] = useState('');
+  const [newTodoDueDate, setNewTodoDueDate] = useState('');
   const [loading, setLoading] = useState(true);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -44,11 +49,14 @@ export function TodoList() {
         title: newTodoTitle.trim(),
         completed: false,
         position: todos.length,
+        due_date: newTodoDueDate || null,
       });
 
       if (newTodo) {
         setTodos([...todos, newTodo]);
         setNewTodoTitle('');
+        setNewTodoDueDate('');
+        setIsDialogOpen(false);
       }
     } catch (error) {
       console.error('Failed to add todo:', error);
@@ -88,23 +96,76 @@ export function TodoList() {
     }
   };
 
+  const getDateLabel = (dueDate: string | null) => {
+    if (!dueDate) return null;
+    
+    const date = parseISO(dueDate);
+    if (isToday(date)) return 'Today';
+    if (isPast(date)) return 'Overdue';
+    if (isFuture(date)) return format(date, 'MMM d');
+    return null;
+  };
+
+  const getDateColor = (dueDate: string | null) => {
+    if (!dueDate) return '';
+    
+    const date = parseISO(dueDate);
+    if (isToday(date)) return 'text-blue-500';
+    if (isPast(date)) return 'text-red-500';
+    return 'text-muted-foreground';
+  };
+
+  const sortedTodos = [...todos].sort((a, b) => {
+    if (a.completed !== b.completed) return a.completed ? 1 : -1;
+    if (!a.due_date && !b.due_date) return 0;
+    if (!a.due_date) return 1;
+    if (!b.due_date) return -1;
+    return new Date(a.due_date).getTime() - new Date(b.due_date).getTime();
+  });
+
   return (
     <Card>
       <CardHeader>
         <CardTitle className="text-lg">To-Do List</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="flex gap-2">
-          <Input
-            value={newTodoTitle}
-            onChange={(e) => setNewTodoTitle(e.target.value)}
-            placeholder="Add a task..."
-            onKeyDown={(e) => e.key === 'Enter' && handleAddTodo()}
-          />
-          <Button size="icon" onClick={handleAddTodo}>
-            <Plus className="h-4 w-4" />
-          </Button>
-        </div>
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <DialogTrigger asChild>
+            <Button className="w-full">
+              <Plus className="h-4 w-4 mr-2" />
+              Add Task
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Add New Task</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="todo-title">Task</Label>
+                <Input
+                  id="todo-title"
+                  value={newTodoTitle}
+                  onChange={(e) => setNewTodoTitle(e.target.value)}
+                  placeholder="Enter task..."
+                  onKeyDown={(e) => e.key === 'Enter' && handleAddTodo()}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="todo-due-date">Due Date (optional)</Label>
+                <Input
+                  id="todo-due-date"
+                  type="date"
+                  value={newTodoDueDate}
+                  onChange={(e) => setNewTodoDueDate(e.target.value)}
+                />
+              </div>
+              <Button onClick={handleAddTodo} className="w-full">
+                Add Task
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
 
         {loading ? (
           <div className="flex justify-center py-4">
@@ -112,20 +173,28 @@ export function TodoList() {
           </div>
         ) : (
           <div className="space-y-2 max-h-[300px] overflow-y-auto">
-            {todos.length === 0 ? (
+            {sortedTodos.length === 0 ? (
               <p className="text-sm text-muted-foreground text-center py-4">
                 No tasks yet
               </p>
             ) : (
-              todos.map(todo => (
+              sortedTodos.map(todo => (
                 <div key={todo.id} className="flex items-center gap-2 p-2 rounded-md hover:bg-muted">
                   <Checkbox
                     checked={todo.completed}
                     onCheckedChange={(checked) => handleToggleTodo(todo.id, checked as boolean)}
                   />
-                  <span className={`flex-1 text-sm ${todo.completed ? 'line-through text-muted-foreground' : ''}`}>
-                    {todo.title}
-                  </span>
+                  <div className="flex-1 min-w-0">
+                    <span className={`text-sm block truncate ${todo.completed ? 'line-through text-muted-foreground' : ''}`}>
+                      {todo.title}
+                    </span>
+                    {todo.due_date && (
+                      <div className={`flex items-center gap-1 text-xs ${getDateColor(todo.due_date)}`}>
+                        <CalendarIcon className="h-3 w-3" />
+                        <span>{getDateLabel(todo.due_date)}</span>
+                      </div>
+                    )}
+                  </div>
                   <Button
                     variant="ghost"
                     size="icon"

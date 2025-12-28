@@ -102,82 +102,85 @@ export function HabitTable({
   }
 
   return (
-    <div className="overflow-x-auto">
-      <table className="w-full border-collapse">
-        <thead>
-          <tr>
-            <th className="sticky left-0 bg-background border p-2 text-left min-w-[200px]">
-              Habit
-            </th>
-            <th className="border p-2 min-w-[80px]">Priority</th>
-            <th className="border p-2 min-w-[80px]">Streak</th>
-            {dates.map(day => (
-              <th key={day} className="border p-2 min-w-[40px] text-center">
-                {day}
+    <div className="overflow-x-auto -mx-4 px-4">
+      <div className="inline-block min-w-full align-middle">
+        <table className="w-full border-collapse text-sm">
+          <thead>
+            <tr>
+              <th className="sticky left-0 z-20 bg-background border p-2 text-left min-w-[150px] xl:min-w-[200px]">
+                Habit
               </th>
-            ))}
-            <th className="sticky right-0 bg-background border p-2 min-w-[80px]">
-              Actions
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {habits.map(habit => (
-            <tr key={habit.id}>
-              <td className="sticky left-0 bg-background border p-2 font-medium">
-                {habit.name}
-              </td>
-              <td className="border p-2 text-center">
-                {habit.priority === 2 && <Badge variant="destructive">High</Badge>}
-                {habit.priority === 1 && <Badge>Medium</Badge>}
-                {habit.priority === 0 && <Badge variant="secondary">Normal</Badge>}
-              </td>
-              <td className="border p-2 text-center">
-                <Badge variant="outline">{getStreak(habit.id)} days</Badge>
-              </td>
-              {dates.map(day => {
-                const status = getLogStatus(habit.id, day);
-                return (
-                  <td key={day} className="border p-0">
-                    <button
-                      type="button"
-                      onClick={() => handleCellClick(habit.id, day)}
-                      className={`w-full h-10 transition-colors ${getCellColor(status)}`}
-                      title={status}
-                    >
-                      {status === 'done' && <Check className="h-4 w-4 mx-auto text-white" />}
-                      {status === 'skip' && <X className="h-4 w-4 mx-auto text-white" />}
-                    </button>
-                  </td>
-                );
-              })}
-              <td className="sticky right-0 bg-background border p-2">
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button variant="ghost" size="icon">
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Delete Habit</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        Are you sure you want to delete this habit? This action cannot be undone.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Cancel</AlertDialogCancel>
-                      <AlertDialogAction onClick={() => onDeleteHabit(habit.id)}>
-                        Delete
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-              </td>
+              <th className="border p-2 min-w-[70px] xl:min-w-[80px]">Priority</th>
+              <th className="border p-2 min-w-[70px] xl:min-w-[80px]">Streak</th>
+              {dates.map(day => (
+                <th key={day} className="border p-1 xl:p-2 min-w-[36px] xl:min-w-[40px] text-center text-xs xl:text-sm">
+                  {day}
+                </th>
+              ))}
+              <th className="sticky right-0 z-20 bg-background border p-2 min-w-[60px] xl:min-w-[80px]">
+                Actions
+              </th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {habits.map(habit => (
+              <tr key={habit.id}>
+                <td className="sticky left-0 z-10 bg-background border p-2 font-medium text-xs xl:text-sm">
+                  {habit.name}
+                </td>
+                <td className="border p-1 xl:p-2 text-center">
+                  {habit.priority === 2 && <Badge variant="destructive" className="text-xs">High</Badge>}
+                  {habit.priority === 1 && <Badge className="text-xs">Medium</Badge>}
+                  {habit.priority === 0 && <Badge variant="secondary" className="text-xs">Normal</Badge>}
+                </td>
+                <td className="border p-1 xl:p-2 text-center">
+                  <Badge variant="outline" className="text-xs">{getStreak(habit.id)}</Badge>
+                </td>
+                {dates.map(day => {
+                  const status = getLogStatus(habit.id, day);
+                  return (
+                    <td key={day} className="border p-0">
+                      <button
+                        type="button"
+                        onClick={() => handleCellClick(habit.id, day)}
+                        className={`w-full h-9 xl:h-10 transition-colors flex items-center justify-center ${getCellColor(status)}`}
+                        title={status}
+                        aria-label={`${habit.name} - Day ${day} - ${status}`}
+                      >
+                        {status === 'done' && <Check className="h-3 w-3 xl:h-4 xl:w-4 text-white" />}
+                        {status === 'skip' && <X className="h-3 w-3 xl:h-4 xl:w-4 text-white" />}
+                      </button>
+                    </td>
+                  );
+                })}
+                <td className="sticky right-0 z-10 bg-background border p-1 xl:p-2">
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button variant="ghost" size="icon" className="h-8 w-8 xl:h-10 xl:w-10">
+                        <Trash2 className="h-3 w-3 xl:h-4 xl:w-4" />
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Delete Habit</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Are you sure you want to delete this habit? This action cannot be undone.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={() => onDeleteHabit(habit.id)}>
+                          Delete
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
