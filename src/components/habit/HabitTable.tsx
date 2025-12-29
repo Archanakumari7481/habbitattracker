@@ -112,7 +112,7 @@ export function HabitTable({
               </th>
               <th className="border p-2 min-w-[70px] xl:min-w-[80px]">Priority</th>
               <th className="border p-2 min-w-[70px] xl:min-w-[80px]">Streak</th>
-              {dates.map(day => (
+              {dates.map((day, index) => (
                 <th key={day} className="border p-1 xl:p-2 min-w-[36px] xl:min-w-[40px] text-center text-xs xl:text-sm">
                   {day}
                 </th>
@@ -123,7 +123,7 @@ export function HabitTable({
             </tr>
           </thead>
           <tbody>
-            {habits.map(habit => (
+            {habits.map((habit, index) => (
               <tr key={habit.id}>
                 <td className="sticky left-0 z-10 bg-background border p-2 font-medium text-xs xl:text-sm">
                   {habit.name}
@@ -136,7 +136,7 @@ export function HabitTable({
                 <td className="border p-1 xl:p-2 text-center">
                   <Badge variant="outline" className="text-xs">{getStreak(habit.id)}</Badge>
                 </td>
-                {dates.map(day => {
+                {dates.map((day, index) => {
                   const status = getLogStatus(habit.id, day);
                   return (
                     <td key={day} className="border p-0">
