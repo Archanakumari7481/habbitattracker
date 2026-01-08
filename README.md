@@ -93,3 +93,32 @@ Configure environment variables and install relevant dependencies.If you need to
 ## Learn More
 
 You can also check the help documentation: Download and Building the app（ [https://intl.cloud.baidu.com/en/doc/MIAODA/s/download-and-building-the-app-en](https://intl.cloud.baidu.com/en/doc/MIAODA/s/download-and-building-the-app-en)）to learn more detailed content.
+# Habit Tracker 📝
+
+This is a Habit Tracker web application that helps users track and build daily habits.
+
+## 🔁 Forked Repository
+
+This project is **forked** from my teammate's GitHub repository:
+
+🔗 Original Repository: https://github.com/DOST-USERNAME/habit-tracker
+
+I have forked this project for learning, collaboration, and portfolio purposes.
+
+## 🚀 Features
+- Create and manage daily habits
+- Track progress regularly
+- Simple and clean UI
+
+## 🛠 Tech Stack
+- HTML
+- CSS
+- JavaScript
+- Node.js
+- Express.js
+- MongoDB
+
+## 🤝 Credits
+This project was developed collaboratively.
+All credits to the original author for the base project.
+
